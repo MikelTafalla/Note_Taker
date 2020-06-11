@@ -12,10 +12,21 @@ const PORT = process.env.PORT || 8080;
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+//Set empty array to store notes
+let notes = [];
 
+//Routes
+app.get("/notes", (req, res) => res.sendFile(__dirname + "/public/notes.html"));
 
+app.get("*", (req, res) => res.sendFile(__dirname + "/public/index.html"));
 
-
+//API routes
+app.get("/api/notes", (req, res) => {
+    // reads the notes from json file
+    const noteData = fs.readFile("/db/db.json", "utf8");
+    console.log(notes);
+    res.json(noteData);
+});
 
 // Start the server on the port
 app.listen(PORT, function() {
