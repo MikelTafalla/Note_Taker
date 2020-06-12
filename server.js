@@ -14,36 +14,43 @@ app.use(express.json());
 //Have access to styles.css and index.js
 app.use(express.static(path.join(__dirname, 'public')));
 
-//Set empty array to store notes
-let notes = [];
 
 //API routes
 app.get("/api/notes", (req, res) => {
-    // reads the notes from json file
-    fs.readFile(__dirname + "/db/db.json", (err, data) => { 
-        if (err) throw err;
-        //parse the buffered data on JSON format
-        let noteData = JSON.parse(data)
-        res.json(noteData);
-    });
+  // reads the notes from json file
+  fs.readFile(__dirname + "/db/db.json", (err, data) => { 
+    if (err) throw err;
+    //parse the buffered data on JSON format
+    let noteData = JSON.parse(data);
+    res.json(noteData);
+  })
 });
 
 app.post("/api/notes", (req, res) => {
-    //Get access to db.json
-    fs.readFile(__dirname + "/db/db.json", (err, data) => {if (err) throw err});
-    //Store new note in newNote variable
-    let newNote = req.body;
-    //Push newNote to the array of notes
+  
+  // Store new note in newNote variable
+  let newNote = req.body;
+
+  fs.readFile(__dirname + "/db/db.json", "utf8", (err, data) => { 
+    if (err) throw err;
+
+    let notes = JSON.parse(data);
+
+    // Push newNote to the array of notes
     notes.push(newNote);
-    // Stringify array
-    notes = JSON.stringify(notes);
-    //Write new array of notes 
-    fs.writeFile(__dirname + "/db/db.json", notes, (err, data) => {if (err) throw err }); 
-    console.log(notes);
-    console.log(newNote);
-    res.json(JSON.parse(notes));
+ 
+  //Write new array of notes 
+  fs.writeFile(__dirname + "/db/db.json", JSON.stringify(notes), (err, data) => {
+    if (err) throw err
+  else {
+    res.json(notes)
+  }
+  }); 
+  });
+
 
 });
+
 
 
 //HTML Routes
@@ -60,6 +67,6 @@ app.get("/notes", (req, res) => res.sendFile(__dirname + "/public/assets/js/inde
 
 // Start the server on the port
 app.listen(PORT, function() {
-    console.log("SERVER IS LISTENING ON PORT: " + PORT);
-  });
+  console.log("SERVER IS LISTENING ON PORT: " + PORT);
+});
 
