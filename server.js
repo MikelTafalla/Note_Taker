@@ -26,6 +26,7 @@ app.get("/api/notes", (req, res) => {
   })
 });
 
+
 app.post("/api/notes", (req, res) => {
   
   // Store new note in newNote variable
@@ -39,17 +40,36 @@ app.post("/api/notes", (req, res) => {
     // Push newNote to the array of notes
     notes.push(newNote);
  
-  //Write new array of notes 
-  fs.writeFile(__dirname + "/db/db.json", JSON.stringify(notes), (err, data) => {
-    if (err) throw err
-  else {
-    res.json(notes)
-  }
-  }); 
+    //Write new array of notes 
+    fs.writeFile(__dirname + "/db/db.json", JSON.stringify(notes), (err, data) => {
+      if (err) throw err;
+      res.json(notes)
+      
+    }); 
   });
 
-
 });
+
+app.delete("/api/notes/:title", (req, res) => {
+  // Get access to db.json file to avoid scope problems
+  fs.readFile(__dirname + "/db/db.json", "utf8", (err, data) => { 
+    if (err) throw err;
+    // save the object array from fb.json in notes
+    let notes = JSON.parse(data)
+    // Iterate through all elements of notes, and return all elements whose title is different than the one of the URL route.
+    notes = notes.filter(data => {
+    return data.title.toLowerCase() !== req.params.title.toLowerCase()
+    }); 
+    // update/rewrite db.json file after deletion is comlete 
+    fs.writeFile(__dirname + "/db/db.json", JSON.stringify(notes), (err, data) => {
+      if (err) throw err;
+      //send response back to client
+      res.json(notes)
+      
+    }); 
+  });
+});
+
 
 
 
