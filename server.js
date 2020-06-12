@@ -11,6 +11,8 @@ const PORT = process.env.PORT || 8080;
 // Sets up the Express app to handle data parsing
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+//Have access to styles.css and index.js
+app.use(express.static(path.join(__dirname, 'public')));
 
 //Set empty array to store notes
 let notes = [];
@@ -48,6 +50,12 @@ app.post("/api/notes", (req, res) => {
 app.get("/notes", (req, res) => res.sendFile(__dirname + "/public/notes.html"));
 
 app.get("*", (req, res) => res.sendFile(__dirname + "/public/index.html"));
+
+//CSS Route
+app.get("/notes", (req, res) => res.sendFile(__dirname + "/public/assets/css/styles.css"));
+
+//JS Route
+app.get("/notes", (req, res) => res.sendFile(__dirname + "/public/assets/js/index.js"));
 
 
 // Start the server on the port
