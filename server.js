@@ -51,10 +51,10 @@ app.get("/api/notes/:title", (req, res) => {
     //parse the buffered data on JSON format
     let noteData = JSON.parse(data);
     // Iterate through all elements of notes, and return all elements whose title is different than the one of the URL route.
-    notes = noteData.filter(data => {
+    let notesArr = noteData.filter(data => {
       return data.title.toLowerCase() === req.params.title.toLowerCase()
     }); 
-    res.json(notes);
+    res.json(notesArr);
   })
 });
 
@@ -62,17 +62,17 @@ app.delete("/api/notes/:title", (req, res) => {
   // Get access to db.json file to avoid scope problems
   fs.readFile(__dirname + "/db/db.json", "utf8", (err, data) => { 
     if (err) throw err;
-    // save the object array from fb.json in notes
+    // save the object array from db.json in notes
     let notes = JSON.parse(data)
     // Iterate through all elements of notes, and return all elements whose title is different than the one of the URL route.
-    notes = notes.filter(data => {
+    let notesNewArr = notes.filter(data => {
     return data.title.toLowerCase() !== req.params.title.toLowerCase()
     }); 
-    // update/rewrite db.json file after deletion is comlete 
-    fs.writeFile(__dirname + "/db/db.json", JSON.stringify(notes), (err, data) => {
+    // update/rewrite db.json file after deletion is complete 
+    fs.writeFile(__dirname + "/db/db.json", JSON.stringify(notesNewArr), (err, data) => {
       if (err) throw err;
       //send response back to client
-      res.json(notes)     
+      res.json(notesNewArr)    
     }); 
   });
 });
