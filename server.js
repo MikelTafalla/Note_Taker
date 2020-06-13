@@ -14,7 +14,6 @@ app.use(express.json());
 //Have access to styles.css and index.js
 app.use(express.static(path.join(__dirname, 'public')));
 
-
 //API routes
 app.get("/api/notes", (req, res) => {
   // reads the notes from json file
@@ -26,7 +25,6 @@ app.get("/api/notes", (req, res) => {
   })
 });
 
-
 app.post("/api/notes", (req, res) => {
   
   // Store new note in newNote variable
@@ -34,20 +32,30 @@ app.post("/api/notes", (req, res) => {
 
   fs.readFile(__dirname + "/db/db.json", "utf8", (err, data) => { 
     if (err) throw err;
-
     let notes = JSON.parse(data);
-
     // Push newNote to the array of notes
     notes.push(newNote);
- 
     //Write new array of notes 
     fs.writeFile(__dirname + "/db/db.json", JSON.stringify(notes), (err, data) => {
       if (err) throw err;
-      res.json(notes)
-      
+      res.json(notes)      
     }); 
   });
+});
 
+// get a specific note to read
+app.get("/api/notes/:title", (req, res) => {
+  // reads the notes from json file
+  fs.readFile(__dirname + "/db/db.json", (err, data) => { 
+    if (err) throw err;
+    //parse the buffered data on JSON format
+    let noteData = JSON.parse(data);
+    // Iterate through all elements of notes, and return all elements whose title is different than the one of the URL route.
+    notes = noteData.filter(data => {
+      return data.title.toLowerCase() === req.params.title.toLowerCase()
+    }); 
+    res.json(notes);
+  })
 });
 
 app.delete("/api/notes/:title", (req, res) => {
@@ -64,14 +72,10 @@ app.delete("/api/notes/:title", (req, res) => {
     fs.writeFile(__dirname + "/db/db.json", JSON.stringify(notes), (err, data) => {
       if (err) throw err;
       //send response back to client
-      res.json(notes)
-      
+      res.json(notes)     
     }); 
   });
 });
-
-
-
 
 //HTML Routes
 app.get("/notes", (req, res) => res.sendFile(__dirname + "/public/notes.html"));
@@ -83,7 +87,6 @@ app.get("/notes", (req, res) => res.sendFile(__dirname + "/public/assets/css/sty
 
 //JS Route
 app.get("/notes", (req, res) => res.sendFile(__dirname + "/public/assets/js/index.js"));
-
 
 // Start the server on the port
 app.listen(PORT, function() {
