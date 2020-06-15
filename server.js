@@ -26,15 +26,18 @@ app.get("/api/notes", (req, res) => {
 });
 
 app.post("/api/notes", (req, res) => {
-  
-  // Store new note in newNote variable
-  let newNote = req.body;
 
   fs.readFile(__dirname + "/db/db.json", "utf8", (err, data) => { 
     if (err) throw err;
-    let notes = JSON.parse(data);
+    let notes = JSON.parse(data)
+    // Store new note and create id dynamically
+    let newNote = {
+      id: notes.length +1,
+      title: req.body.title,
+      text: req.body.text,
+    }
     // Push newNote to the array of notes
-    notes.push(newNote);
+    notes.push(newNote)
     //Write new array of notes 
     fs.writeFile(__dirname + "/db/db.json", JSON.stringify(notes), (err, data) => {
       if (err) throw err;
@@ -51,28 +54,31 @@ app.get("/api/notes/:title", (req, res) => {
     //parse the buffered data on JSON format
     let noteData = JSON.parse(data);
     // Iterate through all elements of notes, and return all elements whose title is different than the one of the URL route.
-    let notesArr = noteData.filter(data => {
+    notes = noteData.filter(data => {
       return data.title.toLowerCase() === req.params.title.toLowerCase()
     }); 
-    res.json(notesArr);
+    res.json(notes);
   })
 });
 
-app.delete("/api/notes/:title", (req, res) => {
+app.delete("/api/notes/:id", (req, res) => {
   // Get access to db.json file to avoid scope problems
   fs.readFile(__dirname + "/db/db.json", "utf8", (err, data) => { 
     if (err) throw err;
     // save the object array from db.json in notes
     let notes = JSON.parse(data)
-    // Iterate through all elements of notes, and return all elements whose title is different than the one of the URL route.
-    let notesNewArr = notes.filter(data => {
-    return data.title.toLowerCase() !== req.params.title.toLowerCase()
-    }); 
+    // storing the element that we want to delete in const note
+    const note = notes.find(n => n.id === parseInt(req.params.id));
+    // getting the index of the element we want to delete. id: 3 = index = 2
+    const index = notes.indexOf(note);
+    // remove just the one note that we want to delete based our choice on its index.
+    notes.splice(index, 1);
+   
     // update/rewrite db.json file after deletion is complete 
-    fs.writeFile(__dirname + "/db/db.json", JSON.stringify(notesNewArr), (err, data) => {
+    fs.writeFile(__dirname + "/db/db.json", JSON.stringify(notes), (err, data) => {
       if (err) throw err;
       //send response back to client
-      res.json(notesNewArr)    
+      res.json(notes)    
     }); 
   });
 });
@@ -87,6 +93,7 @@ app.get("/notes", (req, res) => res.sendFile(__dirname + "/public/assets/css/sty
 
 //JS Route
 app.get("/notes", (req, res) => res.sendFile(__dirname + "/public/assets/js/index.js"));
+
 
 // Start the server on the port
 app.listen(PORT, function() {
